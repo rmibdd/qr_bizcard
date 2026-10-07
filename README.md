@@ -4,7 +4,7 @@
 
 1. Extract this ZIP on your computer.
 2. Open the qr_bizcard repository on GitHub and select the main branch (or your chosen publishing branch).
-3. Upload index.html, README.md, .gitignore, and .nojekyll directly to the repository root. Do not upload the ZIP itself or place the files inside an extra folder.
+3. Upload index.html, batch.js, README.md, .gitignore, and .nojekyll directly to the repository root. Do not upload the ZIP itself or place the files inside an extra folder.
 4. Commit the files. Confirm that index.html appears alongside README.md in the repository file list. Its filename must be exactly index.html, in lowercase.
 5. In repository Settings > Pages, set Source to Deploy from a branch. Select the branch containing these files and /(root), then save.
 6. Wait for the Pages deployment to finish successfully, then reload https://rmibdd.github.io/qr_bizcard/ . If an old page remains visible, use Ctrl+Shift+R.
@@ -35,3 +35,11 @@ Enter contact details, review the preview, and click Download .vcf. Open the dow
 ## Reference
 
 https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
+
+## Batch contacts
+
+Click Create Batch VCF at the top. Paste an Excel table including headers, or upload a UTF-8 CSV. A downloadable CSV template is provided. Click Review contacts, correct any flagged rows, and click Download VCF ZIP. The ZIP contains one VCF per contact, with distinct filenames for duplicate names. No third-party ZIP dependency is needed.
+
+Blank company, address, and website fields inherit shared values from the Single VCF form. Personal fields do not inherit values from the single contact. Keep phone numbers and postal codes as Text in Excel. Up to 5,000 contacts per batch; CSV uploads are limited to 5 MB.
+
+Upload batch.js alongside index.html, since the page loads batch functionality from that file.
