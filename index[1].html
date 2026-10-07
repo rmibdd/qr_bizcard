@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RMI Contact Card Generator</title>
+<style>
+:root{font-family:Segoe UI,Arial,sans-serif;color:#19304e;background:#f1f5fa}*{box-sizing:border-box}body{margin:0;padding:36px 20px}main{max-width:1080px;margin:auto}header{margin-bottom:26px}.eyebrow{font-size:12px;letter-spacing:2px;font-weight:700;color:#3569aa}h1{font-size:32px;margin:10px 0}p{color:#526780;line-height:1.6}.layout{display:grid;grid-template-columns:1.35fr 1fr;gap:22px}.panel{background:white;border:1px solid #dce5ef;border-radius:18px;padding:26px;box-shadow:0 8px 24px #17345408}h2{font-size:18px;margin:0 0 20px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:17px}.wide{grid-column:1/-1}label{display:block;font-size:13px;font-weight:600;margin-bottom:7px}input{width:100%;padding:11px 12px;border:1px solid #cbd7e5;border-radius:8px;font:inherit;color:#19304e}input:focus{outline:2px solid #a3caff;border-color:#2864ac}.hint{font-size:12px;margin:7px 0 0}.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}button{border:0;border-radius:9px;padding:12px 17px;font:600 14px Segoe UI,Arial;cursor:pointer;background:#eaf0f7;color:#19304e}button.primary{background:#185aab;color:white}button:hover{filter:brightness(.95)}button:focus-visible{outline:3px solid #86baff;outline-offset:3px}.card{background:linear-gradient(135deg,#123f79,#2166b8);border-radius:14px;color:white;padding:25px;overflow-wrap:anywhere}.avatar{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:#ffffff20;font-weight:700;font-size:19px}.name{font-size:23px;font-weight:700;margin:17px 0 8px}.job{font-size:14px;color:#dceaff;line-height:1.6}.details{border-top:1px solid #ffffff35;margin-top:20px;padding-top:15px}.details div{font-size:13px;line-height:1.6;margin-bottom:8px}details{margin-top:20px}summary{font-size:13px;cursor:pointer;color:#3569aa}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f2f5f9;padding:14px;border-radius:8px;font-size:11px;line-height:1.6}#status{font-size:13px;min-height:20px;margin-top:16px}footer{font-size:12px;color:#657992;margin-top:22px}@media(max-width:760px){.layout{grid-template-columns:1fr}body{padding:24px 14px}.panel{padding:20px}}@media(max-width:400px){.fields{grid-template-columns:1fr}h1{font-size:26px}}
+</style>
+</head>
+<body><main>
+<header><div class="eyebrow">RAYOMAR MANAGEMENT, INC.</div><h1>Contact Card Generator</h1><p>Enter contact details, preview the card, and download a vCard 3.0 file.</p></header>
+<div class="layout"><section class="panel"><h2>Contact details</h2>
+<form id="contactForm"><div class="fields">
+<div><label for="first">First / given name *</label><input id="first" required autocomplete="given-name" placeholder="e.g. Juan"></div>
+<div><label for="last">Last / family name</label><input id="last" autocomplete="family-name" placeholder="e.g. Dela Cruz"></div>
+<div><label for="middle">Middle name / initial</label><input id="middle" autocomplete="additional-name" placeholder="e.g. B."></div>
+<div><label for="suffix">Suffix</label><input id="suffix" placeholder="e.g. Jr."></div>
+<div class="wide"><label for="display">Display name (optional)</label><input id="display" placeholder="Automatically uses the name entered above"><p class="hint">Use this to control how the full name appears in contacts.</p></div>
+<div class="wide"><label for="title">Job title</label><input id="title" autocomplete="organization-title"></div>
+<div class="wide"><label for="org">Company</label><input id="org" autocomplete="organization" value="Rayomar Management, Inc."></div>
+<div><label for="email">Work email</label><input id="email" type="email" autocomplete="email" placeholder="name@rayomar.com.ph"></div>
+<div><label for="mobile">Mobile number</label><input id="mobile" type="tel" autocomplete="tel" placeholder="e.g. +63 followed by your number"></div>
+<div class="wide"><label for="street">Work address / street</label><input id="street" autocomplete="address-line1" value="10F Country Space I Building, Sen. Gil Puyat Avenue, Salcedo Village"></div>
+<div><label for="city">City</label><input id="city" autocomplete="address-level2" value="Makati City"></div>
+<div><label for="region">Province / region</label><input id="region" autocomplete="address-level1"></div>
+<div><label for="postal">Postal code</label><input id="postal" autocomplete="postal-code" value="1200"></div>
+<div><label for="country">Country</label><input id="country" autocomplete="country-name" value="Philippines"></div>
+<div class="wide"><label for="website">Work website</label><input id="website" value="www.rayomar.com.ph" placeholder="https://www.example.com"></div>
+</div><div class="buttons"><button class="primary" type="submit">Download .vcf</button><button type="button" id="sample">Load example</button><button type="button" id="reset">Reset</button></div>
+<div id="status" role="status" aria-live="polite"></div></form></section>
+<aside class="panel"><h2>Live preview</h2><div class="card"><div class="avatar" id="initials">RM</div><div class="name" id="previewName">Your name</div><div class="job" id="previewJob"></div><div class="job" id="previewOrg"></div><div class="details" id="previewDetails"></div></div><details><summary>View vCard contents</summary><pre id="raw"></pre></details><p class="hint">Uses vCard 3.0 contact fields. Optional empty fields are omitted.</p></aside></div>
+<footer>Works offline. Contact details stay in this browser page and are not stored after you close it. To add the contact, open the downloaded .vcf file in your contacts app.</footer>
+</main>
+<script>
+'use strict';
+const form=document.getElementById('contactForm');
+const ids=['first','last','middle','suffix','display','title','org','email','mobile','street','city','region','postal','country','website'];
+const el=id=>document.getElementById(id);
+const values=()=>Object.fromEntries(ids.map(id=>[id,el(id).value.trim()]));
+function fullName(v){return v.display||[v.first,v.middle,v.last,v.suffix].filter(Boolean).join(' ');}
+function escapeText(value){return String(value).replace(/\\/g,'\\\\').replace(/\r\n|\r|\n/g,'\\n').replace(/;/g,'\\;').replace(/,/g,'\\,');}
+function websiteURL(value){if(!value)return '';return /^https?:\/\//i.test(value)?value:'https://'+value;}
+function foldLine(line){const encoder=new TextEncoder();let out='',segment='',size=0;for(const char of line){const bytes=encoder.encode(char).length;if(size+bytes>75){out+=segment+'\r\n';segment=' ';size=1;}segment+=char;size+=bytes;}return out+segment;}
+function buildVCF(v,revision=new Date().toISOString()){
+ const e=escapeText;const lines=['BEGIN:VCARD','VERSION:3.0','FN;CHARSET=UTF-8:'+e(fullName(v)),'N;CHARSET=UTF-8:'+ [v.last,v.first,v.middle,'',v.suffix].map(e).join(';')];
+ if(v.email)lines.push('EMAIL;CHARSET=UTF-8;TYPE=WORK,INTERNET:'+e(v.email));
+ if(v.mobile)lines.push('TEL;TYPE=CELL:'+e(v.mobile));
+ if(v.street||v.city||v.region||v.postal||v.country)lines.push('ADR;CHARSET=UTF-8;TYPE=WORK:'+['','',v.street,v.city,v.region,v.postal,v.country].map(e).join(';'));
+ if(v.title)lines.push('TITLE;CHARSET=UTF-8:'+e(v.title));
+ if(v.org)lines.push('ORG;CHARSET=UTF-8:'+e(v.org));
+ if(v.website)lines.push('URL;TYPE=WORK:'+websiteURL(v.website));
+ lines.push('REV:'+revision,'END:VCARD');return lines.map(foldLine).join('\r\n')+'\r\n';
+}
+function update(){const v=values();el('previewName').textContent=fullName(v)||'Your name';el('initials').textContent=[v.first[0],v.last[0]].filter(Boolean).join('').toUpperCase()||'RM';el('previewJob').textContent=v.title;el('previewOrg').textContent=v.org;const details=el('previewDetails');details.replaceChildren();for(const value of [v.email,v.mobile,[v.street,v.city,v.region,v.postal,v.country].filter(Boolean).join(', '),v.website]){if(value){const row=document.createElement('div');row.textContent=value;details.appendChild(row);}}el('raw').textContent=buildVCF(v);}
+form.addEventListener('input',()=>{el('status').textContent='';update();});
+form.addEventListener('submit',event=>{event.preventDefault();const v=values();if(v.website){try{const parsed=new URL(websiteURL(v.website));if(!['http:','https:'].includes(parsed.protocol)||!parsed.hostname||/\s/.test(v.website))throw new Error();}catch{el('status').textContent='Please enter a valid website address.';el('website').focus();return;}}
+ const blob=new Blob([buildVCF(v)],{type:'text/vcard;charset=utf-8'});const url=URL.createObjectURL(blob);const link=document.createElement('a');const name=fullName(v).replace(/[<>:"/\\|?*\u0000-\u001f]/g,'').replace(/[. ]+$/g,'').slice(0,100)||'Contact';link.href=url;link.download=name+'.vcf';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);el('status').textContent='Contact file downloaded: '+name+'.vcf';});
+el('reset').addEventListener('click',()=>{form.reset();el('status').textContent='';update();});
+el('sample').addEventListener('click',()=>{form.reset();const sample={first:'Juan',last:'Dela Cruz',middle:'',display:'Juan Dela Cruz',email:'juan@example.com',mobile:'',title:'Example Job Title'};for(const [id,value] of Object.entries(sample))el(id).value=value;el('status').textContent='Example loaded. Edit any field to create a new contact.';update();});
+update();
+</script></body></html>
